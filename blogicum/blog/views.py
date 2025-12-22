@@ -1,10 +1,7 @@
-from typing import Union
-
 from django.shortcuts import render
-from django.http import Http404
 
 
-posts: list[dict[str, Union[int, str]]] = [
+posts = [
     {
         'id': 0,
         'location': 'Остров отчаянья',
@@ -47,24 +44,19 @@ posts: list[dict[str, Union[int, str]]] = [
     },
 ]
 
-main_posts = {post['id']: post for post in posts}
-
 
 def index(request):
-    template_name = 'blog/index.html'
-    context = {'posts': posts[::-1]}
-    return render(request, template_name, context)
+    return render(request, 'blog/index.html', {'posts': posts})
 
 
-def post_detail(request, post_id):
-    template_name = 'blog/detail.html'
-    if post_id not in main_posts:
-        raise Http404('Страница не найдена!')
-    context = {'post': main_posts[post_id]}
-    return render(request, template_name, context)
+def post_detail(request, id):
+    post = next((p for p in posts if p['id'] == id), None)
+    return render(request, 'blog/detail.html', {'post': post})
 
 
 def category_posts(request, category_slug):
-    template_name = 'blog/category.html'
-    context = {'category': category_slug}
-    return render(request, template_name, context)
+    category_items = [p for p in posts if p['category'] == category_slug]
+    return render(request, 'blog/category.html', {
+        'category_slug': category_slug,
+        'posts': category_items,
+    })
